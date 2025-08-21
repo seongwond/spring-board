@@ -1,0 +1,18 @@
+package com.board.service;
+
+import java.util.List;
+
+import com.board.domain.Board;
+
+/**
+ * BoardService 인터페이스
+ * - 비즈니스 로직을 정의
+ * - Controller와 Mapper 사이의 중간 역할
+ */
+public interface BoardService {
+    List<Board> getAll();         // 전체 게시글 조회
+    Board getById(Long id);       // 특정 글 조회
+    void insert(Board board);     // 게시글 추가
+    void update(Board board);     // 게시글 수정
+    void delete(Long id);         // 게시글 삭제
+}
