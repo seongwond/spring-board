@@ -35,6 +35,7 @@
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-jasper</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
@@ -47,7 +48,6 @@
 	  <version>8.0.33</version>
 	  <scope>runtime</scope>
 	</dependency>
-
 
 
     <!-- MyBatis -->
@@ -85,7 +85,6 @@
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-war-plugin</artifactId>
-      <version>3.4.0</version>
     </plugin>
   </plugins>
 </build>
