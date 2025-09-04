@@ -21,12 +21,6 @@ public class BoardController {
         return "board"; // board.jsp
     }
 
-    // 게시글 작성 폼
-    @GetMapping("/write")
-    public String writeForm() {
-        return "write"; // write.jsp
-    }
-
     // 게시글 등록 처리
     @PostMapping("/write")
     public String write(Board board) {
@@ -34,11 +28,11 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    // 게시글 수정 폼
+    // 게시글 수정 폼 이동 (선택적으로 board.jsp 하나로 합칠 수도 있음)
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id, Model model) {
         model.addAttribute("board", boardService.getById(id));
-        return "edit"; // edit.jsp
+        return "edit"; // edit.jsp (추후 필요시)
     }
 
     // 게시글 수정 처리
@@ -49,7 +43,7 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    // 게시글 삭제
+    // 게시글 삭제 (GET 방식)
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         boardService.delete(id);
