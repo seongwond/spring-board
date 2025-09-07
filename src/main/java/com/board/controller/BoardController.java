@@ -20,6 +20,13 @@ public class BoardController {
         model.addAttribute("boards", boardService.getAll());
         return "board"; // board.jsp
     }
+    
+ // 게시글 작성 폼 이동
+    @GetMapping("/write")
+    public String writeForm() {
+        return "write"; // write.jsp
+    }
+
 
     // 게시글 등록 처리
     @PostMapping("/write")
