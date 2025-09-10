@@ -50,10 +50,34 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    // 게시글 삭제 (GET 방식)
+    // 게시글 삭제
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         boardService.delete(id);
         return "redirect:/board/list";
     }
+    
+    // 게시글 상세 보기
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable Long id, Model model) {
+        Board board = boardService.getById(id);
+        if (board == null) {
+            model.addAttribute("message", "존재하지 않는 게시글입니다.");
+            return "error"; // error.jsp
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E) HH:mm:ss")
+                                                       .withLocale(Locale.KOREAN);
+
+        String createdDate = board.getCreatedAt() != null ? board.getCreatedAt().format(formatter) : "";
+        String modifiedDate = board.getUpdatedAt() != null ? board.getUpdatedAt().format(formatter) : "";
+
+        model.addAttribute("board", board);
+        model.addAttribute("createdDate", createdDate);
+        model.addAttribute("modifiedDate", modifiedDate);
+
+        return "detail"; // detail.jsp
+    }
+
+
 }

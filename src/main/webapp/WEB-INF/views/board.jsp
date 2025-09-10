@@ -22,7 +22,7 @@
     <c:forEach var="b" items="${boards}">
         <tr>
             <td>${b.id}</td>
-            <td><a href="${pageContext.request.contextPath}/board/edit/${b.id}">${b.title}</a></td>
+			<td><a href="${pageContext.request.contextPath}/board/detail/${b.id}">${b.title}</a></td>
             <td>${b.writer}</td>
             <td>
                 <a href="${pageContext.request.contextPath}/board/edit/${b.id}">수정</a> |
