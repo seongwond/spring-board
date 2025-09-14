@@ -5,6 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>게시판 목록</title>
+    <!-- 외부 CSS 파일 불러오기 -->
+	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/board.css">
 </head>
 <body>
 <h2>게시판</h2>
@@ -22,7 +24,7 @@
     <c:forEach var="b" items="${boards}">
         <tr>
             <td>${b.id}</td>
-			<td><a href="${pageContext.request.contextPath}/board/detail/${b.id}">${b.title}</a></td>
+            <td><a href="${pageContext.request.contextPath}/board/detail/${b.id}">${b.title}</a></td>
             <td>${b.writer}</td>
             <td>
                 <a href="${pageContext.request.contextPath}/board/edit/${b.id}">수정</a> |
@@ -31,6 +33,22 @@
         </tr>
     </c:forEach>
 </table>
+
+<!-- 페이징 버튼 -->
+<div class="pagination">
+    <c:if test="${currentPage > 1}">
+        <a href="${pageContext.request.contextPath}/board/list?page=${currentPage - 1}">이전</a>
+    </c:if>
+
+    <c:forEach var="i" begin="1" end="${totalPages}">
+        <a href="${pageContext.request.contextPath}/board/list?page=${i}" 
+           class="${i == currentPage ? 'active' : ''}">${i}</a>
+    </c:forEach>
+
+    <c:if test="${currentPage < totalPages}">
+        <a href="${pageContext.request.contextPath}/board/list?page=${currentPage + 1}">다음</a>
+    </c:if>
+</div>
 
 </body>
 </html>

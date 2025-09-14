@@ -1,0 +1,18 @@
+/* 게시판 테이블과 페이징 버튼 사이 간격 */
+table {
+    margin-bottom: 20px; /* 테이블 아래 20px 띄우기 */
+}
+
+/* 게시판 페이징 버튼 스타일 */
+.pagination a {
+    margin: 0 3px;
+    text-decoration: none;
+    padding: 3px 6px;
+    border: 1px solid #ccc;
+    color: #333;
+}
+
+.pagination a.active {
+    font-weight: bold;
+    background-color: #eee;
+}

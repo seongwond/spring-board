@@ -15,4 +15,9 @@ public interface BoardService {
     void insert(Board board);     // 게시글 추가
     void update(Board board);     // 게시글 수정
     void delete(Long id);         // 게시글 삭제
+    
+ // 페이징 관련 메서드 추가
+    List<Board> getByPage(int page, int pageSize); // 특정 페이지 글 조회
+    int getTotalCount();                          // 전체 글 수 조회
+    int getTotalPages(int pageSize);              // 총 페이지 수 계산
 }

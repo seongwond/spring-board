@@ -42,4 +42,22 @@ public class BoardServiceImpl implements BoardService {
     public void delete(Long id) {
         boardMapper.delete(id);
     }
+    
+ // ===================== 페이징 기능 추가 =====================
+    @Override
+    public List<Board> getByPage(int page, int pageSize) {
+        int offset = (page - 1) * pageSize; // 몇 개 건너뛸지 계산
+        return boardMapper.findByPage(pageSize, offset);
+    }
+
+    @Override
+    public int getTotalCount() {
+        return boardMapper.countBoards();
+    }
+
+    @Override
+    public int getTotalPages(int pageSize) {
+        int totalCount = getTotalCount();
+        return (int) Math.ceil((double) totalCount / pageSize);
+    }
 }

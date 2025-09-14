@@ -18,14 +18,25 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    // 전체 게시글 조회
+ // 전체 게시글 조회 + 페이징 적용
     @GetMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("boards", boardService.getAll());
+    public String list(
+            @RequestParam(defaultValue = "1") int page, // URL 파라미터로 페이지 번호 받기
+            Model model) {
+
+        int pageSize = 10; // 한 페이지에 보여줄 글 수
+
+        // 페이지별 게시글 조회
+        model.addAttribute("boards", boardService.getByPage(page, pageSize));
+
+        // 총 페이지 수 계산
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", boardService.getTotalPages(pageSize));
+
         return "board"; // board.jsp
     }
     
- // 게시글 작성 폼 이동
+    // 게시글 작성 폼 이동
     @GetMapping("/write")
     public String writeForm() {
         return "write"; // write.jsp
