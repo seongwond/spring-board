@@ -16,19 +16,19 @@
 
 <table border="1" width="600">
     <tr>
-        <th>ID</th>
+        <th>글 번호</th>
         <th>제목</th>
         <th>작성자</th>
         <th>관리</th>
     </tr>
     <c:forEach var="b" items="${boards}">
         <tr>
-            <td>${b.id}</td>
-            <td><a href="${pageContext.request.contextPath}/board/detail/${b.id}">${b.title}</a></td>
+            <td>${b.boardId}</td>
+            <td><a href="${pageContext.request.contextPath}/board/detail/${b.boardId}">${b.title}</a></td>
             <td>${b.writer}</td>
             <td>
-                <a href="${pageContext.request.contextPath}/board/edit/${b.id}">수정</a> |
-                <a href="${pageContext.request.contextPath}/board/delete/${b.id}">삭제</a>
+                <a href="${pageContext.request.contextPath}/board/edit/${b.boardId}">수정</a> |
+                <a href="${pageContext.request.contextPath}/board/delete/${b.boardId}">삭제</a>
             </td>
         </tr>
     </c:forEach>

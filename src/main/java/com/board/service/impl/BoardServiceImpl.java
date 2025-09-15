@@ -24,8 +24,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board getById(Long id) {
-        return boardMapper.findById(id);
+    public Board getById(Long boardId) {
+        return boardMapper.findById(boardId);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void delete(Long id) {
-        boardMapper.delete(id);
+    public void delete(Long boardId) {
+        boardMapper.delete(boardId);
     }
     
- // ===================== 페이징 기능 추가 =====================
+    // ===================== 페이징 기능 =====================
     @Override
     public List<Board> getByPage(int page, int pageSize) {
         int offset = (page - 1) * pageSize; // 몇 개 건너뛸지 계산
