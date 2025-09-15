@@ -44,7 +44,7 @@
 
 ## 개발자
 
-* 민 성원
-* GitHub: [https://github.com/사용자명](https://github.com/seongwond)
+* 민성원
+* GitHub:(https://github.com/seongwond)
 
 
