@@ -11,7 +11,15 @@
 <form id="writeForm" action="${pageContext.request.contextPath}/board/write" method="post">
     제목: <input type="text" name="title" id="title"/><br><br>
     내용: <textarea name="content" id="content" rows="5" cols="50"></textarea><br><br>
-    작성자: <input type="text" name="writer" id="writer"/><br><br>
+    <!-- 작성자를 화면에 표시 -->
+    작성자: 
+    <span>
+        ${sessionScope.loginMember.username}
+    </span>
+    <br><br>
+
+    <!-- 실제 전송은 숨겨진 필드로 -->
+    <input type="hidden" name="writer" value="${sessionScope.loginMember.username}"/>
     <button type="submit">등록</button>
 </form>
 
@@ -33,11 +41,7 @@
             e.preventDefault();
             return;
         }
-        if (!writer) {
-            alert("작성자를 입력하세요.");
-            e.preventDefault();
-            return;
-        }
+        
     });
 </script>
 

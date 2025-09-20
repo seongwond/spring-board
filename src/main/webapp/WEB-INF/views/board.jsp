@@ -5,13 +5,24 @@
 <head>
     <meta charset="UTF-8">
     <title>게시판 목록</title>
-    <!-- 외부 CSS 파일 불러오기 -->
-	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/board.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/board.css">
 </head>
 <body>
 <h2>게시판</h2>
 
-<a href="${pageContext.request.contextPath}/board/write">새 글 작성</a>
+<!-- 로그인 상태에 따라 글쓰기 버튼 표시 -->
+<c:choose>
+    <c:when test="${not empty sessionScope.loginMember}">
+        <a href="${pageContext.request.contextPath}/board/write">새 글 작성</a>
+        <span> | ${sessionScope.loginMember.username}님 환영합니다.</span>
+        <a href="${pageContext.request.contextPath}/member/logout">로그아웃</a>
+    </c:when>
+    <c:otherwise>
+        <a href="${pageContext.request.contextPath}/member/login">로그인 후 글쓰기</a>
+        <a href="${pageContext.request.contextPath}/member/register">회원가입</a>
+    </c:otherwise>
+</c:choose>
+
 <br><br>
 
 <table border="1" width="600">
@@ -27,14 +38,15 @@
             <td><a href="${pageContext.request.contextPath}/board/detail/${b.boardId}">${b.title}</a></td>
             <td>${b.writer}</td>
             <td>
-                <a href="${pageContext.request.contextPath}/board/edit/${b.boardId}">수정</a> |
-                <a href="${pageContext.request.contextPath}/board/delete/${b.boardId}">삭제</a>
+                <c:if test="${not empty sessionScope.loginMember && sessionScope.loginMember.username == b.writer}">
+                    <a href="${pageContext.request.contextPath}/board/edit/${b.boardId}">수정</a> |
+                    <a href="${pageContext.request.contextPath}/board/delete/${b.boardId}">삭제</a>
+                </c:if>
             </td>
         </tr>
     </c:forEach>
 </table>
 
-<!-- 페이징 버튼 -->
 <div class="pagination">
     <c:if test="${currentPage > 1}">
         <a href="${pageContext.request.contextPath}/board/list?page=${currentPage - 1}">이전</a>

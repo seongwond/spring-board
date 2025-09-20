@@ -24,12 +24,12 @@
     <select id="findById" parameterType="long" resultMap="BoardResultMap">
         SELECT board_id, title, content, writer, created_at, updated_at
         FROM board
-        WHERE board_id = #{id}
+        WHERE board_id = #{boardId}
     </select>
 
     <!-- 등록 -->
     <insert id="insert" parameterType="com.board.domain.Board"
-        useGeneratedKeys="true" keyProperty="id">
+        useGeneratedKeys="true" keyProperty="boardId">
         INSERT INTO board (title, content, writer, created_at, updated_at)
         VALUES (#{title}, #{content}, #{writer}, NOW(), NOW())
     </insert>
@@ -41,13 +41,13 @@
             content = #{content},
             writer = #{writer},
             updated_at = NOW()
-        WHERE board_id = #{id}
+        WHERE board_id = #{boardId}
     </update>
 
     <!-- 삭제 -->
     <delete id="delete" parameterType="long">
         DELETE FROM board
-        WHERE board_id = #{id}
+        WHERE board_id = #{boardId}
     </delete>
 
     <!-- 페이지별 조회 -->
