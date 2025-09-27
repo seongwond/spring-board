@@ -6,6 +6,7 @@ import com.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import jakarta.servlet.http.HttpSession;
@@ -20,13 +21,38 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    // 게시판 목록 + 페이징
+ // 게시판 목록 + 페이징 + 검색
     @GetMapping("/list")
-    public String list(@RequestParam(defaultValue = "1") int page, Model model, HttpSession session) {
+    public String list(
+            // HTTP 요청에서 'page' 파라미터를 받아옵니다. 파라미터가 없으면 기본값으로 1을 사용합니다.
+            @RequestParam(defaultValue = "1") int page,
+            // HTTP 요청에서 'searchTerm' 파라미터를 받아옵니다. 이 파라미터는 필수가 아닙니다.
+            @RequestParam(required = false) String searchTerm,
+            Model model,
+            HttpSession session) {
+        
         int pageSize = 10;
-        model.addAttribute("boards", boardService.getByPage(page, pageSize));
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", boardService.getTotalPages(pageSize));
+        List<Board> boards;
+        int totalPages;
+        
+        // 검색어가 비어있지 않은지 확인하는 조건문입니다.
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            // 검색어가 있을 경우, 검색 기능이 포함된 서비스 메서드를 호출합니다.
+            boards = boardService.searchByPage(searchTerm, page, pageSize);
+            totalPages = boardService.getTotalPages(searchTerm, pageSize);
+        } else {
+            // 검색어가 없을 경우, 기존의 전체 목록 조회 서비스 메서드를 호출합니다.
+            boards = boardService.getByPage(page, pageSize);
+            totalPages = boardService.getTotalPages(pageSize);
+        }
+        
+        // 뷰(JSP)로 전달할 데이터를 Model 객체에 담습니다.
+        model.addAttribute("boards", boards); // 게시글 목록
+        model.addAttribute("currentPage", page); // 현재 페이지 번호
+        model.addAttribute("totalPages", totalPages); // 총 페이지 수
+        model.addAttribute("searchTerm", searchTerm); // 사용자가 입력한 검색어 (뷰에 다시 표시하기 위함)
+        
+        // 'board.jsp' 뷰 파일을 반환하여 화면을 렌더링합니다.
         return "board";
     }
 

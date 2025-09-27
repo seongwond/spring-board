@@ -10,11 +10,11 @@
 <body>
 <h2>게시판</h2>
 
-<!-- 로그인 상태에 따라 글쓰기 버튼 표시 -->
 <c:choose>
     <c:when test="${not empty sessionScope.loginMember}">
         <a href="${pageContext.request.contextPath}/board/write">새 글 작성</a>
-        <span> | ${sessionScope.loginMember.username}님 환영합니다.</span>
+        <span> | 
+${sessionScope.loginMember.username}님 환영합니다.</span>
         <a href="${pageContext.request.contextPath}/member/logout">로그아웃</a>
     </c:when>
     <c:otherwise>
@@ -24,6 +24,13 @@
 </c:choose>
 
 <br><br>
+
+<div class="search-container" style="margin-bottom: 20px;">
+    <form action="${pageContext.request.contextPath}/board/list" method="get">
+        <input type="text" name="searchTerm" placeholder="제목 또는 작성자 검색" value="${searchTerm}"/>
+        <button type="submit">검색</button>
+    </form>
+</div>
 
 <table border="1" width="600">
     <tr>
@@ -40,7 +47,7 @@
             <td>
                 <c:if test="${not empty sessionScope.loginMember && sessionScope.loginMember.username == b.writer}">
                     <a href="${pageContext.request.contextPath}/board/edit/${b.boardId}">수정</a> |
-                    <a href="${pageContext.request.contextPath}/board/delete/${b.boardId}">삭제</a>
+<a href="${pageContext.request.contextPath}/board/delete/${b.boardId}">삭제</a>
                 </c:if>
             </td>
         </tr>
@@ -49,16 +56,16 @@
 
 <div class="pagination">
     <c:if test="${currentPage > 1}">
-        <a href="${pageContext.request.contextPath}/board/list?page=${currentPage - 1}">이전</a>
+        <a href="${pageContext.request.contextPath}/board/list?page=${currentPage - 1}&searchTerm=${searchTerm}">이전</a>
     </c:if>
 
     <c:forEach var="i" begin="1" end="${totalPages}">
-        <a href="${pageContext.request.contextPath}/board/list?page=${i}" 
+        <a href="${pageContext.request.contextPath}/board/list?page=${i}&searchTerm=${searchTerm}" 
            class="${i == currentPage ? 'active' : ''}">${i}</a>
     </c:forEach>
 
     <c:if test="${currentPage < totalPages}">
-        <a href="${pageContext.request.contextPath}/board/list?page=${currentPage + 1}">다음</a>
+        <a href="${pageContext.request.contextPath}/board/list?page=${currentPage + 1}&searchTerm=${searchTerm}">다음</a>
     </c:if>
 </div>
 
