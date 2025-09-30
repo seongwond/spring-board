@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>게시글 상세</title>
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/comments.css">
 </head>
 <body>
 <h2>게시글 상세 보기</h2>
@@ -19,6 +20,23 @@
 <a href="${pageContext.request.contextPath}/board/edit/${board.boardId}">수정</a> |
 <a href="${pageContext.request.contextPath}/board/delete/${board.boardId}">삭제</a> |
 <a href="${pageContext.request.contextPath}/board/list">목록으로</a>
+
+<div id="comments-section">
+    <h3>댓글</h3>
+    <div id="comment-list">
+        </div>
+    
+    <div id="comment-form">
+        <h4>댓글 작성</h4>
+        <textarea id="comment-content" placeholder="댓글 내용을 입력하세요"></textarea>
+        <button id="submit-comment">등록</button>
+    </div>
+</div>
+
+<script>
+    const boardId = ${board.boardId};
+</script>
+<script src="${pageContext.request.contextPath}/js/comments.js"></script>
 
 </body>
 </html>

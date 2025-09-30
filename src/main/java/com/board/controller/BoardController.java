@@ -132,7 +132,9 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    // 게시글 상세보기
+    /**
+     * 기능: 게시글 상세보기를 처리하고, 댓글을 가져올 게시글 ID를 뷰에 전달
+     */
     @GetMapping("/detail/{boardId}")
     public String detail(@PathVariable Long boardId, Model model) {
         Board board = boardService.getById(boardId);
@@ -150,7 +152,11 @@ public class BoardController {
         model.addAttribute("board", board);
         model.addAttribute("createdDate", createdDate);
         model.addAttribute("modifiedDate", modifiedDate);
-
+        
+        // 댓글 기능을 위해 게시글 ID를 뷰에 추가로 전달
+        // detail.jsp에서 이 boardId를 사용하여 댓글 API를 호출
+        model.addAttribute("boardId", boardId);
+        
         return "detail";
     }
 }
