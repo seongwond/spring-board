@@ -38,6 +38,12 @@
         FROM comment
         WHERE comment_id = #{commentId} AND writer = #{writer}
     </select>
+    
+    <select id="findById" resultMap="CommentResultMap">
+        SELECT comment_id, board_id, writer, content, created_at, updated_at
+        FROM comment
+        WHERE comment_id = #{commentId}
+    </select>
 
     <resultMap id="CommentResultMap" type="com.board.domain.Comment">
         <id property="commentId" column="comment_id" />

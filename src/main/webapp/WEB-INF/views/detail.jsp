@@ -1,10 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>게시글 상세</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/comments.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/board.css">
 </head>
 <body>
 <h2>게시글 상세 보기</h2>
@@ -34,7 +36,11 @@
 </div>
 
 <script>
+    // JSP에서 서버로부터 받은 boardId 값을 자바스크립트 변수로 선언합니다.
     const boardId = ${board.boardId};
+    const contextPath = "${pageContext.request.contextPath}";
+    // 로그인한 사용자의 정보를 자바스크립트 변수로 선언합니다.
+    const loginMemberUsername = "${sessionScope.loginMember.username}";
 </script>
 <script src="${pageContext.request.contextPath}/js/comments.js"></script>
 
