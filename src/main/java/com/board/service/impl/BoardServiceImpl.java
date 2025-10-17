@@ -1,7 +1,12 @@
 package com.board.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.board.domain.Board;
 import com.board.mapper.BoardMapper;
@@ -11,13 +16,15 @@ import com.board.service.BoardService;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardMapper boardMapper;
+    
+    // 파일이 저장될 기본 경로 설정 (실제 경로에 맞게 수정 필요)
+    private final String uploadDir = "C:/dev/workspace/spring-board/src/main/resources/static/file";
 
-    // 생성자 주입(Constructor Injection)
     public BoardServiceImpl(BoardMapper boardMapper) {
         this.boardMapper = boardMapper;
     }
 
-    // 기존 메서드들...
+
     @Override
     public List<Board> getAll() {
         return boardMapper.findAll();
@@ -28,13 +35,60 @@ public class BoardServiceImpl implements BoardService {
         return boardMapper.findById(boardId);
     }
 
+    /**
+     * 기능: 새로운 게시글 등록 + 파일 업로드 처리
+     * 설명: MultipartFile을 받아 서버에 파일을 저장하고, 파일 정보를 Board 객체에 담아 DB에 저장
+     */
     @Override
-    public void insert(Board board) {
+    public void insert(Board board, MultipartFile file) {
+        // 파일이 비어있지 않을 경우에만 파일 업로드 처리
+        if (!file.isEmpty()) {
+            // 파일명 중복 방지를 위해 UUID를 사용
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            // 업로드 경로와 파일명을 합쳐 저장할 파일 객체 생성
+            File dest = new File(uploadDir, fileName);
+            
+            try {
+                // 파일을 지정된 경로에 실제로 저장
+                file.transferTo(dest);
+                // 파일 정보를 Board 객체에 설정
+                board.setFileName(file.getOriginalFilename());
+                board.setFilePath(dest.getAbsolutePath());
+            } catch (IOException e) {
+                // 파일 저장 실패 시 예외 처리
+                throw new RuntimeException("파일 업로드 실패", e);
+            }
+        }
         boardMapper.insert(board);
     }
-
+    
+    /**
+     * 기능: 게시글 수정 + 파일 업로드/교체 처리
+     * 설명: 새로운 파일이 업로드되면 기존 파일을 삭제하고 새 파일로 교체
+     */
     @Override
-    public void update(Board board) {
+    public void update(Board board, MultipartFile file) {
+        // 새로운 파일이 업로드되었는지 확인
+        if (!file.isEmpty()) {
+            // 기존 파일 삭제
+            Board existingBoard = boardMapper.findById(board.getBoardId());
+            if (existingBoard != null && existingBoard.getFilePath() != null) {
+                File existingFile = new File(existingBoard.getFilePath());
+                if (existingFile.exists()) {
+                    existingFile.delete();
+                }
+            }
+            // 새 파일 업로드
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            File dest = new File(uploadDir, fileName);
+            try {
+                file.transferTo(dest);
+                board.setFileName(file.getOriginalFilename());
+                board.setFilePath(dest.getAbsolutePath());
+            } catch (IOException e) {
+                throw new RuntimeException("파일 업로드 실패", e);
+            }
+        }
         boardMapper.update(board);
     }
 
@@ -60,40 +114,20 @@ public class BoardServiceImpl implements BoardService {
         return (int) Math.ceil((double) totalCount / pageSize);
     }
     
-    // =========================================================
-    // 새로 추가된 검색 기능 구현
-    // =========================================================
-
-    /**
-     * 기능: 검색어를 포함한 게시글 목록을 페이징하여 조회하는 메서드.
-     * BoardMapper의 searchByPage() 메서드를 호출합니다.
-     */
     @Override
     public List<Board> searchByPage(String searchTerm, int page, int pageSize) {
-        // SQL의 OFFSET 값(몇 개의 데이터를 건너뛸지)을 계산합니다.
         int offset = (page - 1) * pageSize;
-        // 매퍼의 searchByPage() 메서드에 검색어와 페이징 정보를 전달하여 결과를 반환
         return boardMapper.searchByPage(searchTerm, pageSize, offset);
     }
 
-    /**
-     * 기능: 검색 조건에 맞는 게시글의 총 개수를 조회하는 메서드.
-     * BoardMapper의 countBoardsBySearch() 메서드를 호출합니다.
-     */
     @Override
     public int getTotalCount(String searchTerm) {
-        // 매퍼의 countBoardsBySearch() 메서드를 호출하여 검색 조건에 맞는 게시글의 총 개수를 가져dha
         return boardMapper.countBoardsBySearch(searchTerm);
     }
 
-    /**
-     * 기능: 검색 조건에 맞는 총 페이지 수를 계산하는 메서드.
-     * getTotalCount(searchTerm) 메서드를 호출하여 총 글 수를 가져온 뒤, 페이지 크기로 나누어 올림 처리합니다.
-     */
     @Override
     public int getTotalPages(String searchTerm, int pageSize) {
         int totalCount = getTotalCount(searchTerm);
-        // Math.ceil() 함수를 사용하여 소수점을 올림하여 총 페이지 수를 정확히 계산
         return (int) Math.ceil((double) totalCount / pageSize);
     }
 }

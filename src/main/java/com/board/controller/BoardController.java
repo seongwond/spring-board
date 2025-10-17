@@ -4,15 +4,27 @@ import com.board.domain.Board;
 import com.board.domain.Member;
 import com.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriUtils;
 
 @Controller
 @RequestMapping("/board")
@@ -20,39 +32,31 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final String uploadDir = "C:/uploads/";
 
- // 게시판 목록 + 페이징 + 검색
     @GetMapping("/list")
     public String list(
-            // HTTP 요청에서 'page' 파라미터를 받아옵니다. 파라미터가 없으면 기본값으로 1을 사용합니다.
             @RequestParam(defaultValue = "1") int page,
-            // HTTP 요청에서 'searchTerm' 파라미터를 받아옵니다. 이 파라미터는 필수가 아닙니다.
             @RequestParam(required = false) String searchTerm,
             Model model,
             HttpSession session) {
-        
         int pageSize = 10;
         List<Board> boards;
         int totalPages;
         
-        // 검색어가 비어있지 않은지 확인하는 조건문입니다.
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            // 검색어가 있을 경우, 검색 기능이 포함된 서비스 메서드를 호출합니다.
             boards = boardService.searchByPage(searchTerm, page, pageSize);
             totalPages = boardService.getTotalPages(searchTerm, pageSize);
         } else {
-            // 검색어가 없을 경우, 기존의 전체 목록 조회 서비스 메서드를 호출합니다.
             boards = boardService.getByPage(page, pageSize);
             totalPages = boardService.getTotalPages(pageSize);
         }
         
-        // 뷰(JSP)로 전달할 데이터를 Model 객체에 담습니다.
-        model.addAttribute("boards", boards); // 게시글 목록
-        model.addAttribute("currentPage", page); // 현재 페이지 번호
-        model.addAttribute("totalPages", totalPages); // 총 페이지 수
-        model.addAttribute("searchTerm", searchTerm); // 사용자가 입력한 검색어 (뷰에 다시 표시하기 위함)
+        model.addAttribute("boards", boards);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("searchTerm", searchTerm);
         
-        // 'board.jsp' 뷰 파일을 반환하여 화면을 렌더링합니다.
         return "board";
     }
 
@@ -64,17 +68,18 @@ public class BoardController {
         return "write";
     }
 
+    /**
+     * 기능: 게시글 등록
+     * 설명: @RequestParam MultipartFile을 통해 파일을 받아 서비스로 전달
+     */
     @PostMapping("/write")
-    public String write(Board board, HttpSession session) {
+    public String write(Board board, @RequestParam("file") MultipartFile file, HttpSession session) {
         Member loginMember = (Member) session.getAttribute("loginMember");
-        
-        // 로그인 여부 체크
         if (loginMember == null) {
-            return "redirect:/member/login"; // 로그인 페이지로 리다이렉트
+            return "redirect:/member/login";
         }
-
         board.setWriter(loginMember.getUsername());
-        boardService.insert(board);
+        boardService.insert(board, file);
         return "redirect:/board/list";
     }
 
@@ -96,14 +101,16 @@ public class BoardController {
         return "edit";
     }
 
-    // 게시글 수정 처리
+    /**
+     * 기능: 게시글 수정
+     * 설명: 수정 시 새로운 파일을 받아서 기존 파일을 교체
+     */
     @PostMapping("/edit/{boardId}")
-    public String edit(@PathVariable Long boardId, Board board, HttpSession session) {
+    public String edit(@PathVariable Long boardId, Board board, @RequestParam("file") MultipartFile file, HttpSession session) {
         Member loginMember = (Member) session.getAttribute("loginMember");
         if (loginMember == null) {
             return "redirect:/member/login";
         }
-
         Board existing = boardService.getById(boardId);
         if (!loginMember.getUsername().equals(existing.getWriter())) {
             return "redirect:/board/list";
@@ -111,7 +118,7 @@ public class BoardController {
 
         board.setBoardId(boardId);
         board.setWriter(existing.getWriter());
-        boardService.update(board);
+        boardService.update(board, file);
         return "redirect:/board/list";
     }
 
@@ -133,7 +140,8 @@ public class BoardController {
     }
 
     /**
-     * 기능: 게시글 상세보기를 처리하고, 댓글을 가져올 게시글 ID를 뷰에 전달
+     * 기능: 게시글 상세보기
+     * 설명: 게시글 정보와 댓글을 가져올 boardId를 뷰에 전달
      */
     @GetMapping("/detail/{boardId}")
     public String detail(@PathVariable Long boardId, Model model) {
@@ -152,11 +160,33 @@ public class BoardController {
         model.addAttribute("board", board);
         model.addAttribute("createdDate", createdDate);
         model.addAttribute("modifiedDate", modifiedDate);
-        
-        // 댓글 기능을 위해 게시글 ID를 뷰에 추가로 전달
-        // detail.jsp에서 이 boardId를 사용하여 댓글 API를 호출
+
+        // 댓글 기능을 위해 게시글 ID를 뷰에 추가로 전달합니다.
         model.addAttribute("boardId", boardId);
         
         return "detail";
+    }
+
+    /**
+     * 기능: 파일 다운로드
+     * 설명: URL에서 파일명을 받아 파일을 읽고 다운로드 응답을 보냅니다.
+     */
+    @GetMapping("/download/{boardId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long boardId) throws IOException {
+        Board board = boardService.getById(boardId);
+        if (board == null || board.getFilePath() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Path path = Paths.get(board.getFilePath());
+        Resource resource = new UrlResource(path.toUri());
+
+        String encodedFileName = UriUtils.encode(board.getFileName(), "UTF-8");
+        String contentDisposition = "attachment; filename=\"" + encodedFileName + "\"";
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+            .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(path))
+            .body(resource);
     }
 }
